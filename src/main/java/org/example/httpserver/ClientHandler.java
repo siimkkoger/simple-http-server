@@ -7,7 +7,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.stream.Collectors;
 
-class ClientHandler implements Runnable {
+public class ClientHandler implements Runnable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
 
