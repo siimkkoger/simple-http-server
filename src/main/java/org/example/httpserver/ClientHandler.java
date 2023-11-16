@@ -1,13 +1,15 @@
 package org.example.httpserver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 class ClientHandler implements Runnable {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(ClientHandler.class);
 
     private final Socket clientSocket;
     private final String webroot;
@@ -37,7 +39,7 @@ class ClientHandler implements Runnable {
             // Read the HTTP request header
             String headerLine;
             while ((headerLine = reader.readLine()) != null && !headerLine.isEmpty()) {
-                //System.out.println(headerLine);
+                //LOGGER.info(headerLine);
             }
 
             // Read HTML content from file
@@ -58,12 +60,12 @@ class ClientHandler implements Runnable {
             writer.flush();
 
         } catch (IOException e) {
-            System.out.println("Error handling client connection: " + e.getMessage());
+            LOGGER.info("Error handling client connection: " + e.getMessage());
         } finally {
             try {
                 clientSocket.close();
             } catch (IOException e) {
-                System.out.println("Error closing socket: " + e.getMessage());
+                LOGGER.info("Error closing socket: " + e.getMessage());
             }
         }
     }
