@@ -20,13 +20,10 @@ public class ServerListenerThread extends Thread {
 
     public void run() {
         try (var serverSocket = new ServerSocket(configuration.port())) {
-            LOGGER.info("Server started on port " + configuration.port() + " and webroot " + configuration.webroot());
-
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                new Thread(new ClientHandler(clientSocket, configuration.webroot())).start();
+                new Thread(new HttpConnectionHandlerThread(clientSocket, configuration.webroot())).start();
             }
-
         } catch (IOException e) {
             LOGGER.info("Server could not start: " + e.getMessage());
         }

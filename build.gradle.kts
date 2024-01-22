@@ -14,6 +14,8 @@ dependencies {
 
     implementation("org.slf4j:slf4j-api:2.0.5")
     implementation("ch.qos.logback:logback-classic:1.4.0")
+    //implementation("org.apache.logging.log4j:log4j-api:2.21.1")
+    //implementation("org.apache.logging.log4j:log4j-core:2.21.1")
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
