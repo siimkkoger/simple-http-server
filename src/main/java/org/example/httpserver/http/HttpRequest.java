@@ -25,7 +25,10 @@ public class HttpRequest extends HttpMessage {
         return requestTarget;
     }
 
-    public void setRequestTarget(String requestTarget) {
+    public void setRequestTarget(String requestTarget) throws HttpParsingException {
+        if (requestTarget == null || requestTarget.isEmpty()) {
+            throw new HttpParsingException(HttpStatusCode.SERVER_ERROR_500_INTERNAL_SERVER_ERROR, "Request target is empty");
+        }
         this.requestTarget = requestTarget;
     }
 

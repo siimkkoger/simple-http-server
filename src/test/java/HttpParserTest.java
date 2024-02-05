@@ -28,7 +28,9 @@ class HttpParserTest {
     void parseHttpRequest() throws IOException, HttpParsingException {
         HttpRequest httpRequest = httpParser.parseHttpRequest(generateValidTestCase());
 
+        assertThat(httpRequest).isNotNull();
         assertThat(httpRequest.getMethod()).isEqualTo(HttpMethod.GET);
+        assertThat(httpRequest.getRequestTarget()).isEqualTo("/");
     }
 
     @Test
