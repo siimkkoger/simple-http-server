@@ -47,6 +47,12 @@ class HttpParserTest {
 
         assertThatThrownBy(() -> httpParser.parseHttpRequest(generateInvalidTestCase_emptyRequestLine()))
                 .isInstanceOf(HttpParsingException.class);
+
+        assertThatThrownBy(() -> httpParser.parseHttpRequest(generateInvalidTestCase_noLF()))
+                .isInstanceOf(HttpParsingException.class);
+
+        assertThatThrownBy(() -> httpParser.parseHttpRequest(generateInvalidTestCase_noCR()))
+                .isInstanceOf(HttpParsingException.class);
     }
 
     private InputStream generateValidTestCase() {
@@ -78,10 +84,6 @@ class HttpParserTest {
                 "Host: localhost:8080\r\n" +
                 "Connection: keep-alive\r\n" +
                 "Cache-Control: max-age=0\r\n" +
-                "sec-ch-ua: \"Not A(Brand\";v=\"99\", \"Brave\";v=\"121\", \"Chromium\";v=\"121\"\r\n" +
-                "sec-ch-ua-mobile: ?0\r\n" +
-                "sec-ch-ua-platform: \"Windows\"\r\n" +
-                "Upgrade-Insecure-Requests: 1\r\n" +
                 "\r\n";
 
         return new ByteArrayInputStream(rawDate.getBytes(StandardCharsets.UTF_8));
@@ -92,10 +94,6 @@ class HttpParserTest {
                 "Host: localhost:8080\r\n" +
                 "Connection: keep-alive\r\n" +
                 "Cache-Control: max-age=0\r\n" +
-                "sec-ch-ua: \"Not A(Brand\";v=\"99\", \"Brave\";v=\"121\", \"Chromium\";v=\"121\"\r\n" +
-                "sec-ch-ua-mobile: ?0\r\n" +
-                "sec-ch-ua-platform: \"Windows\"\r\n" +
-                "Upgrade-Insecure-Requests: 1\r\n" +
                 "\r\n";
         return new ByteArrayInputStream(rawDate.getBytes(StandardCharsets.UTF_8));
     }
@@ -105,10 +103,6 @@ class HttpParserTest {
                 "Host: localhost:8080\r\n" +
                 "Connection: keep-alive\r\n" +
                 "Cache-Control: max-age=0\r\n" +
-                "sec-ch-ua: \"Not A(Brand\";v=\"99\", \"Brave\";v=\"121\", \"Chromium\";v=\"121\"\r\n" +
-                "sec-ch-ua-mobile: ?0\r\n" +
-                "sec-ch-ua-platform: \"Windows\"\r\n" +
-                "Upgrade-Insecure-Requests: 1\r\n" +
                 "\r\n";
         return new ByteArrayInputStream(rawDate.getBytes(StandardCharsets.UTF_8));
     }
@@ -118,10 +112,6 @@ class HttpParserTest {
                 "Host: localhost:8080\r\n" +
                 "Connection: keep-alive\r\n" +
                 "Cache-Control: max-age=0\r\n" +
-                "sec-ch-ua: \"Not A(Brand\";v=\"99\", \"Brave\";v=\"121\", \"Chromium\";v=\"121\"\r\n" +
-                "sec-ch-ua-mobile: ?0\r\n" +
-                "sec-ch-ua-platform: \"Windows\"\r\n" +
-                "Upgrade-Insecure-Requests: 1\r\n" +
                 "\r\n";
         return new ByteArrayInputStream(rawDate.getBytes(StandardCharsets.UTF_8));
     }
@@ -131,11 +121,25 @@ class HttpParserTest {
                 "Host: localhost:8080\r\n" +
                 "Connection: keep-alive\r\n" +
                 "Cache-Control: max-age=0\r\n" +
-                "sec-ch-ua: \"Not A(Brand\";v=\"99\", \"Brave\";v=\"121\", \"Chromium\";v=\"121\"\r\n" +
-                "sec-ch-ua-mobile: ?0\r\n" +
-                "sec-ch-ua-platform: \"Windows\"\r\n" +
-                "Upgrade-Insecure-Requests: 1\r\n" +
                 "\r\n";
+        return new ByteArrayInputStream(rawDate.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private InputStream generateInvalidTestCase_noLF() {
+        String rawDate = "GET / HTTP/1.1\r" +
+                "Host: localhost:8080\r" +
+                "Connection: keep-alive\r" +
+                "Cache-Control: max-age=0\r" +
+                "\r";
+        return new ByteArrayInputStream(rawDate.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private InputStream generateInvalidTestCase_noCR() {
+        String rawDate = "GET / HTTP/1.1\n" +
+                "Host: localhost:8080\n" +
+                "Connection: keep-alive\n" +
+                "Cache-Control: max-age=0\n" +
+                "\n";
         return new ByteArrayInputStream(rawDate.getBytes(StandardCharsets.UTF_8));
     }
 }

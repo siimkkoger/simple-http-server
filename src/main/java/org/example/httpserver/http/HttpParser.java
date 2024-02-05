@@ -38,6 +38,10 @@ public class HttpParser {
 
         int _byte;
         while ((_byte = reader.read()) >= 0) {
+            if (_byte == LF) {
+                throw new HttpParsingException(HttpStatusCode.CLIENT_ERROR_400_BAD_REQUEST, "Request line is incomplete");
+            }
+
             if (_byte == CR) {
                 _byte = reader.read();
                 if (_byte == LF) {
@@ -46,6 +50,8 @@ public class HttpParser {
                         throw new HttpParsingException(HttpStatusCode.CLIENT_ERROR_400_BAD_REQUEST, "Request line is incomplete");
                     }
                     break;
+                } else {
+                    throw new HttpParsingException(HttpStatusCode.CLIENT_ERROR_400_BAD_REQUEST, "Request line is incomplete");
                 }
             }
 
