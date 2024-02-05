@@ -1,3 +1,4 @@
+import org.example.httpserver.http.HttpParser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -5,8 +6,6 @@ import org.junit.jupiter.api.TestInstance;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HttpParserTest {
@@ -44,6 +43,6 @@ class HttpParserTest {
                 "Cookie: mp_628b13b57f789d481577b13542b60034_mixpanel=%7B%22distinct_id%22%3A%20%22%24device%3A18d78cee12a25d-00b8c7cdbbacd1-26001851-232800-18d78cee12a25d%22%2C%22%24device_id%22%3A%20%2218d78cee12a25d-00b8c7cdbbacd1-26001851-232800-18d78cee12a25d%22%2C%22%24initial_referrer%22%3A%20%22%24direct%22%2C%22%24initial_referring_domain%22%3A%20%22%24direct%22%7D\r\n" +
                 "\r\n";
 
-        return new ByteArrayInputStream(rawDate.getBytes(StandardCharsets.US_ASCII));
+        return new ByteArrayInputStream(rawDate.getBytes(StandardCharsets.UTF_8));
     }
 }

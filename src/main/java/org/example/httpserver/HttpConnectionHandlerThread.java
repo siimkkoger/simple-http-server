@@ -1,14 +1,12 @@
 package org.example.httpserver;
 
+import org.example.httpserver.http.HttpParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 public class HttpConnectionHandlerThread implements Runnable {
@@ -16,10 +14,12 @@ public class HttpConnectionHandlerThread implements Runnable {
     private final static Logger LOGGER = LoggerFactory.getLogger(HttpConnectionHandlerThread.class);
     private final Socket socket;
     private final String webroot;
+    private final HttpParser httpParser;
 
     public HttpConnectionHandlerThread(Socket socket, String webRoot) {
         this.socket = socket;
         this.webroot = webRoot;
+        this.httpParser = new HttpParser();
     }
 
     @Override
@@ -27,10 +27,9 @@ public class HttpConnectionHandlerThread implements Runnable {
         try (socket;
              var input = socket.getInputStream();
              var output = socket.getOutputStream();
-             var reader = new BufferedReader(new InputStreamReader(input));
              var writer = new BufferedWriter(new OutputStreamWriter(output))) {
 
-            String request = parseRequest(reader);
+            String request = httpParser.parseHttpRequest(input);
             System.out.println(request);
             String response = processRequest(request);
             sendResponse(writer, response);
@@ -38,15 +37,6 @@ public class HttpConnectionHandlerThread implements Runnable {
         } catch (IOException e) {
             LOGGER.error("Error handling client connection", e);
         }
-    }
-
-    private String parseRequest(BufferedReader reader) throws IOException {
-        StringBuilder requestBuilder = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null && !line.isEmpty()) {
-            requestBuilder.append(line).append("\n");
-        }
-        return requestBuilder.toString();
     }
 
     private String processRequest(String request) throws IOException {
