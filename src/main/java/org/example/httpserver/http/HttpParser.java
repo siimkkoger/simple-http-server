@@ -49,6 +49,10 @@ public class HttpParser {
                     if (!methodParsed || !requestTargetParsed) {
                         throw new HttpParsingException(HttpStatusCode.CLIENT_ERROR_400_BAD_REQUEST, "Request line is incomplete");
                     }
+
+                    LOGGER.debug("Request line VERSION to process: {}", processingDataBuffer);
+                    request.setHttpVersion(processingDataBuffer.toString());
+
                     break;
                 } else {
                     throw new HttpParsingException(HttpStatusCode.CLIENT_ERROR_400_BAD_REQUEST, "Request line is incomplete");

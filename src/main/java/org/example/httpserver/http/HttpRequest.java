@@ -4,7 +4,8 @@ public class HttpRequest extends HttpMessage {
 
     private HttpMethod method;
     private String requestTarget;
-    private String httpVersion;
+    private String originalHttpVersion;
+    private HttpVersion bestCompatibleVersion;
 
     public HttpRequest() {
     }
@@ -32,11 +33,11 @@ public class HttpRequest extends HttpMessage {
         this.requestTarget = requestTarget;
     }
 
-    public String getHttpVersion() {
-        return httpVersion;
-    }
-
-    public void setHttpVersion(String httpVersion) {
-        this.httpVersion = httpVersion;
+    public void setHttpVersion(String originalHttpVersion) throws HttpParsingException {
+        this.originalHttpVersion = originalHttpVersion;
+        this.bestCompatibleVersion = HttpVersion.getBestCompatibleVersion(originalHttpVersion);
+        if (bestCompatibleVersion == null) {
+            throw new HttpParsingException(HttpStatusCode.SERVER_ERROR_505_HTTP_VERSION_NOT_SUPPORTED, "Unsupported HTTP version: " + originalHttpVersion);
+        }
     }
 }

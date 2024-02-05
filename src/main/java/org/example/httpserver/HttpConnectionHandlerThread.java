@@ -34,21 +34,11 @@ public class HttpConnectionHandlerThread implements Runnable {
 
             HttpMessage request = httpParser.parseHttpRequest(input);
             System.out.println(request);
-            String response = processRequest("wefwefwefwef");
+            String response = getHtmlContent(webroot + "/welcome.html");
             sendResponse(writer, response);
 
         } catch (IOException | HttpParsingException e) {
             LOGGER.error("Error handling client connection", e);
-        }
-    }
-
-    private String processRequest(String request) throws IOException {
-        // Example of simple request processing. This should be expanded
-        // based on your application's requirements.
-        if (request.contains("GET / HTTP/1.1")) {
-            return getHtmlContent(webroot + "/welcome.html");
-        } else {
-            return "<html><body><h1>Error 500: Internal Server Error</h1></body></html>";
         }
     }
 
