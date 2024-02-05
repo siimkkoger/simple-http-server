@@ -7,7 +7,9 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 public class HttpConnectionHandlerThread implements Runnable {
 
@@ -29,6 +31,7 @@ public class HttpConnectionHandlerThread implements Runnable {
              var writer = new BufferedWriter(new OutputStreamWriter(output))) {
 
             String request = parseRequest(reader);
+            System.out.println(request);
             String response = processRequest(request);
             sendResponse(writer, response);
 
@@ -46,13 +49,12 @@ public class HttpConnectionHandlerThread implements Runnable {
         return requestBuilder.toString();
     }
 
-    private String processRequest(String request) {
+    private String processRequest(String request) throws IOException {
         // Example of simple request processing. This should be expanded
         // based on your application's requirements.
-        try {
-            return readHtmlContent(webroot + "/index.html");
-        } catch (IOException e) {
-            LOGGER.error("Error reading HTML content", e);
+        if (request.contains("GET / HTTP/1.1")) {
+            return getHtmlContent(webroot + "/welcome.html");
+        } else {
             return "<html><body><h1>Error 500: Internal Server Error</h1></body></html>";
         }
     }
@@ -70,10 +72,12 @@ public class HttpConnectionHandlerThread implements Runnable {
         writer.flush();
     }
 
-    private String readHtmlContent(String filePath) throws IOException {
-        if (!Files.exists(Paths.get(filePath))) {
-            throw new FileNotFoundException("File not found: " + filePath);
+    private String getHtmlContent(String filePath) throws IOException {
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+        if (inputStream == null) {
+            throw new FileNotFoundException("Resource not found");
         }
-        return Files.readString(Paths.get(filePath), StandardCharsets.UTF_8);
+        return new BufferedReader(new InputStreamReader(inputStream))
+                .lines().collect(Collectors.joining("\n"));
     }
 }
