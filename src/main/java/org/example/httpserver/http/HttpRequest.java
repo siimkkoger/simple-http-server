@@ -16,4 +16,24 @@ public class HttpRequest extends HttpMessage {
     public void setMethod(HttpMethod method) {
         this.method = method;
     }
+
+    public void setMethod(String method) {
+        this.method = HttpMethod.valueOf(method);
+    }
+
+    public String getRequestTarget() {
+        return requestTarget;
+    }
+
+    public void setRequestTarget(String requestTarget) {
+        this.requestTarget = requestTarget;
+    }
+
+    public String getHttpVersion() {
+        return httpVersion;
+    }
+
+    public void setHttpVersion(String httpVersion) {
+        this.httpVersion = httpVersion;
+    }
 }

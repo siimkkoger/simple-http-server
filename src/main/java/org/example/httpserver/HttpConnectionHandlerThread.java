@@ -1,6 +1,9 @@
 package org.example.httpserver;
 
+import org.example.httpserver.http.HttpMessage;
+import org.example.httpserver.http.HttpMethod;
 import org.example.httpserver.http.HttpParser;
+import org.example.httpserver.http.HttpParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +32,12 @@ public class HttpConnectionHandlerThread implements Runnable {
              var output = socket.getOutputStream();
              var writer = new BufferedWriter(new OutputStreamWriter(output))) {
 
-            String request = httpParser.parseHttpRequest(input);
+            HttpMessage request = httpParser.parseHttpRequest(input);
             System.out.println(request);
-            String response = processRequest(request);
+            String response = processRequest("wefwefwefwef");
             sendResponse(writer, response);
 
-        } catch (IOException e) {
+        } catch (IOException | HttpParsingException e) {
             LOGGER.error("Error handling client connection", e);
         }
     }

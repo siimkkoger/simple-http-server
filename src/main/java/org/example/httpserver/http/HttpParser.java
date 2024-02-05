@@ -11,55 +11,71 @@ import java.nio.charset.StandardCharsets;
 
 
 public class HttpParser {
-
     private final static Logger LOGGER = LoggerFactory.getLogger(HttpParser.class);
 
-    public HttpMessage parseHttpRequest(InputStream inputStream) throws IOException {
+    private static final int SP = 0x20; // 32
+    private static final int CR = 0x0D; // 13
+    private static final int LF = 0x0A; // 10
+
+    public HttpRequest parseHttpRequest(InputStream inputStream) throws IOException, HttpParsingException {
         LOGGER.info("Parsing HTTP request");
 
         var reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         var request = new HttpRequest();
 
         parseRequestLine(reader,request);
-        parseHeaders(reader, request);
-        parseBody(reader, request);
+        //parseHeaders(reader, request);
+        //parseBody(reader, request);
 
         return request;
     }
 
-    private void parseRequestLine(BufferedReader reader, HttpRequest request) throws IOException {
-        String requestLine = reader.readLine();
-        LOGGER.info("Request line: " + requestLine);
-        String[] requestLineParts = requestLine.split(" ");
-        request.setMethod(requestLineParts[0]);
-        request.setUri(requestLineParts[1]);
-        request.setHttpVersion(requestLineParts[2]);
-    }
+    private void parseRequestLine(BufferedReader reader, HttpRequest request) throws IOException, HttpParsingException {
+        StringBuilder processingDataBuffer = new StringBuilder();
 
-    private void parseHeaders(BufferedReader reader, HttpRequest request) throws IOException {
-        String headerLine;
-        while ((headerLine = reader.readLine()) != null && !headerLine.isEmpty()) {
-            LOGGER.info("Header: " + headerLine);
-            String[] headerParts = headerLine.split(": ");
-            request.addHeader(headerParts[0], headerParts[1]);
-        }
-    }
+        boolean methodParsed = false;
+        boolean requestTargetParsed = false;
 
-    private void parseBody(BufferedReader reader, HttpRequest request) throws IOException {
-        if (reader.ready()) {
-            String body = reader.lines().collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString();
-            LOGGER.info("Body: " + body);
-            request.setBody(body);
-        }
-    }
+        int _byte;
+        while ((_byte = reader.read()) >= 0) {
+            if (_byte == CR) {
+                _byte = reader.read();
+                if (_byte == LF) {
+                    LOGGER.debug("Request line VERSION to process: {}", processingDataBuffer);
+                    if (!methodParsed || !requestTargetParsed) {
+                        throw new HttpParsingException(HttpStatusCode.CLIENT_ERROR_400_BAD_REQUEST, "Request line is incomplete");
+                    }
+                    break;
+                }
+            }
 
-    private String parseRequest(BufferedReader reader) throws IOException {
-        StringBuilder requestBuilder = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null && !line.isEmpty()) {
-            requestBuilder.append(line).append("\n");
+            if (_byte == SP) {
+                if (!methodParsed) {
+                    LOGGER.debug("Request line METHOD to process: {}", processingDataBuffer);
+                    try {
+                        request.setMethod(HttpMethod.valueOf(processingDataBuffer.toString()));
+                    } catch (IllegalArgumentException e) {
+                        throw new HttpParsingException(HttpStatusCode.SERVER_ERROR_501_NOT_IMPLEMENTED, "Unsupported HTTP method: " + processingDataBuffer);
+                    }
+                    methodParsed = true;
+                } else if (!requestTargetParsed) {
+                    LOGGER.debug("Request line REQUEST TARGET to process: {}", processingDataBuffer);
+                    request.setRequestTarget(processingDataBuffer.toString());
+                    requestTargetParsed = true;
+                } else {
+                    throw new HttpParsingException(HttpStatusCode.CLIENT_ERROR_400_BAD_REQUEST, "Request line contains too many spaces");
+                }
+                LOGGER.debug("Processing data: {}", processingDataBuffer);
+                processingDataBuffer.delete(0, processingDataBuffer.length());
+            } else {
+                processingDataBuffer.append((char) _byte);
+                if (!methodParsed) {
+                    if (processingDataBuffer.length() > HttpMethod.MAX_LENGTH) {
+                        throw new HttpParsingException(HttpStatusCode.SERVER_ERROR_501_NOT_IMPLEMENTED, "Request line method is too long");
+                    }
+                }
+            }
         }
-        return requestBuilder.toString();
     }
 
 }

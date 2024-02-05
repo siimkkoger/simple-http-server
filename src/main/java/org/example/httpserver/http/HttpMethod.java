@@ -5,8 +5,17 @@ public enum HttpMethod {
     POST,
     PUT,
     DELETE,
-    HEAD,
-    OPTIONS,
-    TRACE,
-    CONNECT
+    HEAD;
+
+    public static final int MAX_LENGTH;
+
+    static {
+        int max = 0;
+        for (HttpMethod method : values()) {
+            if (method.name().length() > max) {
+                max = method.name().length();
+            }
+        }
+        MAX_LENGTH = max;
+    }
 }
